@@ -182,7 +182,7 @@ public class DataBase {
         try {
             connection.close();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to close connection!", e);
+            throw new RuntimeException("Unable to close connection!", e);
         }
     }
 }

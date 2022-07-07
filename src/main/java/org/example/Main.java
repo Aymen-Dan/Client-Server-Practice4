@@ -14,11 +14,11 @@ public class Main {
         db.deleteAllGroup();
         db.deleteAllProducts();
 
-        Group group1 = new Group("1 Group Name", "Group 1 description");
-        Group group2 = new Group("2 Group Name", "Group 2 description");
-        Group group3 = new Group("3 Group Name", "Group 3 description");
-        Group group4 = new Group("4 Group Name", "Group 4 description");
-        Group group5 = new Group("5 Group Name", "Group 5 description");
+        Group group1 = new Group("Group1", "Group 1 description");
+        Group group2 = new Group("Group2", "Group 2 description");
+        Group group3 = new Group("Group3", "Group 3 description");
+        Group group4 = new Group("Group4", "Group 4 description");
+        Group group5 = new Group("Group5", "Group 5 description");
 
 
         db.addGroup(group1);
@@ -35,16 +35,13 @@ public class Main {
         db.updateGroup("description", "New description", "title", group1.getgName());
         System.out.println(db.getGroupList(0, 10));
 
-        System.out.println("\n<-- Deleting the first group -->\n");
-        db.deleteGroup(group1.getgName());
-        System.out.println(db.getGroupList(0, 10));
 
         System.out.println("\n<-- Deleting all groups and inserting a new group -->");
         db.deleteAllGroup();
         System.out.println(db.getGroupList(0, 10) + "\n");
 
         db.addGroup(group1);
-        Product product = new Product("This is the product name", "This is the product description", 10,
+        Product product = new Product("This is the product name", "This is the product description", 17,
                 5, "productDistributor", group1.getgName());
 
         System.out.println("\n<-- Adding a product -->");
@@ -53,7 +50,7 @@ public class Main {
         System.out.println(db.getProductList(0, 10, new Filter()));
 
         System.out.println("\n<-- Changing the price of the product -->");
-        db.updateProduct("price", "10000", "title", product.getpName());
+        db.updateProduct("price", "12235", "title", product.getpName());
         System.out.println(db.getProduct(product.getpName()));
 
         db.deleteProduct(product.getpName());
