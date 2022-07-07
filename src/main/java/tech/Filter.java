@@ -4,60 +4,74 @@ import java.util.Set;
 
 public class Filter {
 
-    private Set<Integer> ids;
+    private Set<Integer> IDs;
     private String query;
-    private Double fromPrice;
-    private Double toPrice;
-    private Integer fromQuantity;
-    private Integer toQuantity;
+    private Double basePrice;
+    private Double finPrice;
+    private Integer baseQuantity;
+    private Integer finQuantity;
 
 
-    public Set<Integer> getIds() {
-        return ids;
+    /**IDs getter*/
+    public Set<Integer> getIDs() {
+        return IDs;
     }
 
-    public void setIds(Set<Integer> ids) {
-        this.ids = ids;
+    /**IDs setter*/
+    public void setIDs(Set<Integer> IDs) {
+        this.IDs = IDs;
     }
 
+    /**Query getter*/
     public String getQuery() {
         return query;
     }
 
+    /**Query setter*/
     public void setQuery(String query) {
         this.query = query;
     }
 
-    public Double getFromPrice() {
-        return fromPrice;
+    /**Base Price getter*/
+    public Double getBasePrice() {
+        return basePrice;
     }
 
-    public void setFromPrice(Double fromPrice) {
-        this.fromPrice = fromPrice;
+    /**Base Price setter*/
+    public void setBasePrice(Double basePrice) {
+        this.basePrice = basePrice;
     }
 
-    public Double getToPrice() {
-        return toPrice;
+    /**Final Price getter*/
+    public Double getFinPrice() {
+        return finPrice;
     }
 
-    public void setToPrice(Double toPrice) {
-        this.toPrice = toPrice;
+    /**Final Price setter*/
+    public void setFinPrice(Double finPrice) {
+        this.finPrice = finPrice;
     }
 
-    public Integer getFromQuantity() {
-        return fromQuantity;
+
+    /**Base Quality getter*/
+    public Integer getBaseQuantity() {
+        return baseQuantity;
     }
 
-    public void setFromQuantity(Integer fromQuantity) {
-        this.fromQuantity = fromQuantity;
+    /**Base Quality setter*/
+    public void setBaseQuantity(Integer baseQuantity) {
+        this.baseQuantity = baseQuantity;
     }
 
-    public Integer getToQuantity() {
-        return toQuantity;
+
+    /**Final Quality  getter*/
+    public Integer getFinQuantity() {
+        return finQuantity;
     }
 
-    public void setToQuantity(Integer toQuantity) {
-        this.toQuantity = toQuantity;
+    /**Final Quality setter*/
+    public void setFinQuantity(Integer finQuantity) {
+        this.finQuantity = finQuantity;
     }
 
 }

@@ -9,44 +9,35 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-public class Database {
+public class DataBase {
 
     public static final String fileName = "database.db";
-
-    private static volatile Database instance;
+    private static volatile DataBase instance;
     private final Connection connection;
     private final ProductTech productTech;
-    private final CategoryTech categoryTech;
+    private final GroupTech groupTech;
 
 
-
-    public static Database getInstance() {
-        Database localInstance = instance;
-        if (localInstance == null) {
-            synchronized (Database.class) {
-                localInstance = instance;
-                if (localInstance == null) {
-                    instance = localInstance = new Database();
-                }
-            }
+   /**Basic database constructor*/
+    private DataBase() {
+        try {
+            Class.forName("org.sqlite.JDBC");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + fileName);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("SQLite JDBC not found!", e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        return localInstance;
+        createProductGroupsTable();
+        createProductsTable();
+
+        productTech = new ProductTech(connection);
+        groupTech = new GroupTech(connection);
+
     }
 
-    public static Database getInstance(final String fileName) {
-        Database localInstance = instance;
-        if (localInstance == null) {
-            synchronized (Database.class) {
-                localInstance = instance;
-                if (localInstance == null) {
-                    instance = localInstance = new Database(fileName);
-                }
-            }
-        }
-        return localInstance;
-    }
-
-    private Database() {
+    /**Database by name constructor*/
+    private DataBase(final String fileName) {
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + fileName);
@@ -56,36 +47,47 @@ public class Database {
             throw new RuntimeException(e);
         }
 
-        initProductGroupsTable();
-        initProductsTable();
-        initUserTable();
+        createProductGroupsTable();
+        createProductsTable();
 
         productTech = new ProductTech(connection);
-        categoryTech = new CategoryTech(connection);
+        groupTech = new GroupTech(connection);
 
     }
 
-    private Database(final String fileName) {
-        try {
-            Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:" + fileName);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("SQLite JDBC not found!", e);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+
+   /**Database getter*/
+    public static DataBase getDB() {
+        DataBase localInstance = instance;
+        if (localInstance == null) {
+            synchronized (DataBase.class) {
+                localInstance = instance;
+                if (localInstance == null) {
+                    instance = localInstance = new DataBase();
+                }
+            }
         }
-
-        initProductGroupsTable();
-        initProductsTable();
-        initUserTable();
-
-        productTech = new ProductTech(connection);
-        categoryTech = new CategoryTech(connection);
-
+        return localInstance;
     }
 
 
-    private void initProductGroupsTable() {
+    /**Database getter by name*/
+    public static DataBase getDB(final String fileName) {
+        DataBase localInstance = instance;
+        if (localInstance == null) {
+            synchronized (DataBase.class) {
+                localInstance = instance;
+                if (localInstance == null) {
+                    instance = localInstance = new DataBase(fileName);
+                }
+            }
+        }
+        return localInstance;
+    }
+
+
+    /**Create Products Groups Table*/
+    private void createProductGroupsTable() {
         try (Statement statement = connection.createStatement()) {
             statement.execute(
                     "CREATE TABLE IF NOT EXISTS 'categories' (" +
@@ -93,11 +95,12 @@ public class Database {
                             "'description' VARCHAR(700) NOT NULL)"
             );
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to create categories table!", e);
+            throw new RuntimeException("Unable to create categories table!", e);
         }
     }
 
-    private void initProductsTable() {
+    /**Create Products Table*/
+    private void createProductsTable() {
         try (Statement statement = connection.createStatement()) {
             statement.execute(
                     "CREATE TABLE IF NOT EXISTS 'products' (" +
@@ -111,46 +114,38 @@ public class Database {
                             "FOREIGN KEY(category) REFERENCES categories(title) ON UPDATE CASCADE ON DELETE CASCADE)"
             );
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to create products table!", e);
+            throw new RuntimeException("Unable to create products table!", e);
         }
     }
 
 
-    private void initUserTable() {
-        try (final Statement statement = connection.createStatement()) {
-            statement.execute("create table if not exists 'users'('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'login' VARCHAR(50) NOT NULL, 'password' VARCHAR(250) NOT NULL, 'role' VARCHAR(20) NOT NULL, UNIQUE (login))");
-        } catch (final SQLException e) {
-            throw new RuntimeException("Can't create table", e);
-        }
+
+    public int addGroup(final Group group) {
+        return groupTech.addToGroup(group);
+    }
+
+    public Group getGroup(String title) {
+        return groupTech.getProductGroup(title);
+    }
+
+    public List<Group> getGroupList(final int page, final int size) {
+        return groupTech.getGroupList(page, size);
+    }
+
+    public void updateGroup(String updateColumnName, String newValue, String searchColumnName, String searchValue) {
+        groupTech.Update(updateColumnName, newValue, searchColumnName, searchValue);
+    }
+
+    public void deleteGroup(final String title) {
+        groupTech.Delete(title);
+    }
+
+    public void deleteAllGroup() {
+        groupTech.deleteAll();
     }
 
 
-    public int insertCategory(final Group group) {
-        return categoryTech.insertCategory(group);
-    }
-
-    public Group getCategory(String title) {
-        return categoryTech.getCategory(title);
-    }
-
-    public List<Group> getCategoryList(final int page, final int size) {
-        return categoryTech.getCategoryList(page, size);
-    }
-
-    public void updateCategory(String updateColumnName, String newValue, String searchColumnName, String searchValue) {
-        categoryTech.update(updateColumnName, newValue, searchColumnName, searchValue);
-    }
-
-    public void deleteCategory(final String title) {
-        categoryTech.delete(title);
-    }
-
-    public void deleteAllCategories() {
-        categoryTech.deleteAll();
-    }
-
-
-    public int insertProduct(final Product product) {
+    public int addProduct(final Product product) {
         return productTech.addProduct(product);
     }
 
@@ -167,11 +162,11 @@ public class Database {
     }
 
     public void updateProduct(String updateColumnName, String newValue, String searchColumnName, String searchValue) {
-        productTech.update(updateColumnName, newValue, searchColumnName, searchValue);
+        productTech.Update(updateColumnName, newValue, searchColumnName, searchValue);
     }
 
     public void deleteProduct(final String title) {
-        productTech.delete(title);
+        productTech.Delete(title);
     }
 
     public void deleteAllProducts() {

@@ -16,6 +16,40 @@ public class ProductTech {
     }
 
 
+
+    /**Update Product*/
+    public void Update(String updateColumnName, String newValue, String searchColumnName, String searchValue) {
+        try (final Statement statement = connection.createStatement()) {
+            statement.executeUpdate(
+                    "update 'products' set " + updateColumnName + " = '" + newValue + "' where " + searchColumnName +
+                            " = '" + searchValue + "'");
+        } catch (SQLException e) {
+            throw new RuntimeException("Unable to update the table!", e);
+        }
+    }
+
+
+    /**Delete Product*/
+    public void Delete(final String title) {
+        try (final Statement statement = connection.createStatement()) {
+            statement.executeUpdate(String.format("delete from 'products' where title = '%s'", title));
+        } catch (SQLException e) {
+            throw new RuntimeException("Unable to delete by title!", e);
+        }
+    }
+
+    /**Delete ALL*/
+    public void deleteAll() {
+        try (final Statement statement = connection.createStatement()) {
+            statement.executeUpdate("delete from 'products'");
+            statement.executeUpdate("delete from sqlite_sequence where name='products'");
+        } catch (SQLException e) {
+            throw new RuntimeException("Unable to delete all!", e);
+        }
+    }
+
+
+   /**Add a product*/
     public int addProduct(final Product product) {
         try (PreparedStatement insertStatement = connection.prepareStatement(
                 "insert into 'products'('title', 'description', 'price', 'quantity', 'producer', 'category') " +
@@ -37,7 +71,7 @@ public class ProductTech {
             final ResultSet result = insertStatement.getGeneratedKeys();
             return result.getInt("last_insert_rowid()");
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to insert product!", e);
+            throw new RuntimeException("Unable to insert product!", e);
         }
     }
 
@@ -45,11 +79,12 @@ public class ProductTech {
 
     public Product getProduct(int id) {
         Filter filter = new Filter();
-        filter.setIds(Set.of(id));
+        filter.setIDs(Set.of(id));
         List<Product> list = getProductList(0, 1, filter);
         return list.isEmpty() ? null : list.get(0);
     }
 
+    /**Full product getter*/
     public Product getProduct(String title) {
         try (final Statement statement = connection.createStatement()) {
 
@@ -67,10 +102,11 @@ public class ProductTech {
                             resultSet.getString("category"))
                     : null;
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to get product!", e);
+            throw new RuntimeException("Unable to get product!", e);
         }
     }
 
+    /**Get list of products*/
     public List<Product> getProductList(final int page, final int size, final Filter filter) {
         try (final Statement statement = connection.createStatement()) {
 
@@ -90,14 +126,14 @@ public class ProductTech {
             }
             return products;
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to create list by criteria!", e);
+            throw new RuntimeException("Unable to create list by criteria!", e);
         }
     }
 
     private static String createWhereClause(Filter filter) {
-        final String query = Stream.of(like("title", filter.getQuery()), in("id", filter.getIds()),
-                        range("price", filter.getFromPrice(), filter.getToPrice()),
-                        range("quantity", filter.getFromQuantity(), filter.getToQuantity()))
+        final String query = Stream.of(like("title", filter.getQuery()), in("id", filter.getIDs()),
+                        range("price", filter.getBasePrice(), filter.getFinPrice()),
+                        range("quantity", filter.getBaseQuantity(), filter.getFinQuantity()))
                 .filter(Objects::nonNull).collect(Collectors.joining(" AND "));
 
         final String where = query.isEmpty() ? "" : "where " + query;
@@ -120,53 +156,39 @@ public class ProductTech {
 
     /**Range(fName,DOUBLE from,to)*/
     private static String range(final String fieldName, final Double from, final Double to) {
-        if (from == null && to == null) return null;
+        if (from == null && to == null){
+            return null;
+        }
 
-        if (from != null && to == null) return fieldName + " > " + from;
+        if (from != null && to == null){
+            return fieldName + " > " + from;
+        }
 
-        if (from == null && to != null) return fieldName + " < " + to;
+        if (from == null && to != null){
+            return fieldName + " < " + to;
+        }
 
         return fieldName + " BETWEEN " + from + " AND " + to;
     }
 
     /**Range(fName,INT from,to)*/
     private static String range(final String fieldName, final Integer from, final Integer to) {
-        if (from == null && to == null) return null;
+        if (from == null && to == null){
+            return null;
+        }
 
-        if (from != null && to == null) return fieldName + " > " + from;
+        if (from != null && to == null){
+            return fieldName + " > " + from;
+        }
 
-        if (from == null && to != null) return fieldName + " < " + to;
+        if (from == null && to != null){
+            return fieldName + " < " + to;
+        }
 
         return fieldName + " BETWEEN " + from + " AND " + to;
     }
 
 
-    public void update(String updateColumnName, String newValue, String searchColumnName, String searchValue) {
-        try (final Statement statement = connection.createStatement()) {
-            statement.executeUpdate(
-                    "update 'products' set " + updateColumnName + " = '" + newValue + "' where " + searchColumnName +
-                            " = '" + searchValue + "'");
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to update table!", e);
-        }
-    }
 
-
-    public void delete(final String title) {
-        try (final Statement statement = connection.createStatement()) {
-            statement.executeUpdate(String.format("delete from 'products' where title = '%s'", title));
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to delete by title!", e);
-        }
-    }
-
-    public void deleteAll() {
-        try (final Statement statement = connection.createStatement()) {
-            statement.executeUpdate("delete from 'products'");
-            statement.executeUpdate("delete from sqlite_sequence where name='products'");
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to delete all!", e);
-        }
-    }
 
 }
