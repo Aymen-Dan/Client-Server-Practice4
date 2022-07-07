@@ -1,8 +1,7 @@
-package actions;
+package tech;
 
-import base.Category;
-import base.Product;
-import base.User;
+import storage.Group;
+import storage.Product;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -16,9 +15,9 @@ public class Database {
 
     private static volatile Database instance;
     private final Connection connection;
-    private final ForProduct forProduct;
-    private final ForCategory forCategory;
-    private final ForUser forUser;
+    private final ProductTech productTech;
+    private final CategoryTech categoryTech;
+
 
 
     public static Database getInstance() {
@@ -61,9 +60,9 @@ public class Database {
         initProductsTable();
         initUserTable();
 
-        forProduct = new ForProduct(connection);
-        forCategory = new ForCategory(connection);
-        forUser = new ForUser(connection);
+        productTech = new ProductTech(connection);
+        categoryTech = new CategoryTech(connection);
+
     }
 
     private Database(final String fileName) {
@@ -80,9 +79,9 @@ public class Database {
         initProductsTable();
         initUserTable();
 
-        forProduct = new ForProduct(connection);
-        forCategory = new ForCategory(connection);
-        forUser = new ForUser(connection);
+        productTech = new ProductTech(connection);
+        categoryTech = new CategoryTech(connection);
+
     }
 
 
@@ -126,71 +125,63 @@ public class Database {
     }
 
 
-    public int insertCategory(final Category category) {
-        return forCategory.insertCategory(category);
+    public int insertCategory(final Group group) {
+        return categoryTech.insertCategory(group);
     }
 
-    public Category getCategory(String title) {
-        return forCategory.getCategory(title);
+    public Group getCategory(String title) {
+        return categoryTech.getCategory(title);
     }
 
-    public List<Category> getCategoryList(final int page, final int size) {
-        return forCategory.getCategoryList(page, size);
+    public List<Group> getCategoryList(final int page, final int size) {
+        return categoryTech.getCategoryList(page, size);
     }
 
     public void updateCategory(String updateColumnName, String newValue, String searchColumnName, String searchValue) {
-        forCategory.update(updateColumnName, newValue, searchColumnName, searchValue);
+        categoryTech.update(updateColumnName, newValue, searchColumnName, searchValue);
     }
 
     public void deleteCategory(final String title) {
-        forCategory.delete(title);
+        categoryTech.delete(title);
     }
 
     public void deleteAllCategories() {
-        forCategory.deleteAll();
+        categoryTech.deleteAll();
     }
 
 
     public int insertProduct(final Product product) {
-        return forProduct.insertProduct(product);
+        return productTech.addProduct(product);
     }
 
     public Product getProduct(int id) {
-        return forProduct.getProduct(id);
+        return productTech.getProduct(id);
     }
 
     public Product getProduct(String title) {
-        return forProduct.getProduct(title);
+        return productTech.getProduct(title);
     }
 
-    public List<Product> getProductList(final int page, final int size, final ProductFilter productFilter) {
-        return forProduct.getProductList(page, size, productFilter);
+    public List<Product> getProductList(final int page, final int size, final Filter filter) {
+        return productTech.getProductList(page, size, filter);
     }
 
     public void updateProduct(String updateColumnName, String newValue, String searchColumnName, String searchValue) {
-        forProduct.update(updateColumnName, newValue, searchColumnName, searchValue);
+        productTech.update(updateColumnName, newValue, searchColumnName, searchValue);
     }
 
     public void deleteProduct(final String title) {
-        forProduct.delete(title);
+        productTech.delete(title);
     }
 
     public void deleteAllProducts() {
-        forProduct.deleteAll();
+        productTech.deleteAll();
     }
 
 
-    public int insertUser(final User user) {
-        return forUser.insertUser(user);
-    }
 
-    public User getUser(final String login) {
-        return forUser.getByLogin(login);
-    }
 
-    public void deleteAllUsers() {
-        forUser.deleteAll();
-    }
+
 
     public void shutdown() {
         try {

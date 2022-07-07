@@ -1,40 +1,40 @@
-package actions;
+package tech;
 
-import base.Category;
+import storage.Group;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ForCategory {
+public class CategoryTech {
 
     private final Connection connection;
 
-    ForCategory(final Connection connection) {
+    CategoryTech(final Connection connection) {
         this.connection = connection;
     }
 
-    public int insertCategory(final Category category) {
+    public int insertCategory(final Group group) {
         try (PreparedStatement insertStatement = connection.prepareStatement(
                 "insert into 'categories'('title', 'description') values (?, ?)")) {
-            insertStatement.setString(1, category.getTitle());
-            insertStatement.setString(2, category.getDescription());
+            insertStatement.setString(1, group.getgName());
+            insertStatement.setString(2, group.getDescription());
             insertStatement.execute();
 
             final ResultSet result = insertStatement.getGeneratedKeys();
             return result.getInt("last_insert_rowid()");
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to insert category!", e);
+            throw new RuntimeException("Failed to insert group!", e);
         }
     }
 
-    public Category getCategory(String title) {
+    public Group getCategory(String title) {
         try (final Statement statement = connection.createStatement()) {
 
             final String    query     = "SELECT * FROM 'categories' WHERE title = '" + title + "'";
             final ResultSet resultSet = statement.executeQuery(query);
 
-            return resultSet.next() ? new Category(
+            return resultSet.next() ? new Group(
                     resultSet.getString("title"),
                     resultSet.getString("description"))
                     : null;
@@ -44,16 +44,16 @@ public class ForCategory {
     }
 
 
-    public List<Category> getCategoryList(final int page, final int size) {
+    public List<Group> getCategoryList(final int page, final int size) {
         try (final Statement statement = connection.createStatement()) {
 
             final String query = "SELECT * FROM 'categories' LIMIT " + size + " OFFSET " + page * size;
             final ResultSet resultSet = statement.executeQuery(query);
 
 
-            final List<Category> categories = new ArrayList<>();
+            final List<Group> categories = new ArrayList<>();
             while (resultSet.next()) {
-                categories.add(new Category(
+                categories.add(new Group(
                         resultSet.getString("title"),
                         resultSet.getString("description")));
             }

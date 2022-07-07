@@ -1,8 +1,8 @@
-package actions;
+package tech;
 
 import java.util.Set;
 
-public class ProductFilter {
+public class Filter {
 
     private Set<Integer> ids;
     private String query;
